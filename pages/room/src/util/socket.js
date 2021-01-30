@@ -22,6 +22,7 @@ class SocketBuilder {
 
     socket.on("user-connected", this.onUserConnected);
     socket.on("user-disconnected", this.onUserDisconnected);
+    socket.on("join-room", this.onUserJoined);
 
     return socket;
   }

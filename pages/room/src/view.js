@@ -1,5 +1,7 @@
 class View {
-  constructor() {}
+  constructor() {
+    this.recorderBtn = document.getElementById("record");
+  }
 
   createVideoElement({ muted = true, src, srcObject }) {
     const video = document.createElement("video");
@@ -20,8 +22,18 @@ class View {
     return video;
   }
 
-  renderVideo({ userId, stream = null, url = null, isCurrentId = false }) {
-    const video = this.createVideoElement({ src: url, srcObject: stream });
+  renderVideo({
+    userId,
+    stream = null,
+    url = null,
+    isCurrentId = false,
+    muted = true,
+  }) {
+    const video = this.createVideoElement({
+      src: url,
+      srcObject: stream,
+      muted,
+    });
     this.appendToHtmlTree(userId, video, isCurrentId);
   }
 
@@ -36,11 +48,39 @@ class View {
 
     const div2 = document.createElement("div");
 
-    div2.innerText = isCurrentId ? "" : userId;
+    div2.innerText = userId;
     div.append(div2);
 
     const videoGrid = document.getElementById("video-grid");
 
     videoGrid.append(div);
+  }
+
+  setParticipants(count) {
+    const myself = 1;
+    const participants = document.getElementById("participants");
+    participants.innerHTML = count + myself;
+  }
+
+  removeVideoElement(id) {
+    const element = document.getElementById(id);
+    element.remove();
+  }
+
+  toogleRecordingButtonColor(isActive = true) {
+    this.recorderBtn.style.color = this.recordingEnabled ? "red" : "white";
+  }
+
+  onRecordClick(command) {
+    this.recordingEnabled = false;
+    return () => {
+      const isActive = (this.recordingEnabled = !this.recordingEnabled);
+      command(this.recordingEnabled);
+      this.toogleRecordingButtonColor(isActive);
+    };
+  }
+
+  configureRecordButton(command) {
+    this.recorderBtn.addEventListener("click", this.onRecordClick(command));
   }
 }
