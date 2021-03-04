@@ -20,6 +20,7 @@ class Business {
 
   async _init() {
     this.view.configureRecordButton(this.onRecordPressed.bind(this));
+    this.view.configureLeaveButton(this.onLeavePressed.bind(this));
 
     this.currentStream = await this.media.getCamera();
 
@@ -47,7 +48,7 @@ class Business {
     if (this.recordingEnabled) {
       recorderInstance.startRecording();
     }
-    const isCurrentId = false;
+    const isCurrentId = userId === this.currentPeer.id;
     this.view.renderVideo({
       userId,
       stream,
@@ -72,7 +73,7 @@ class Business {
       }
 
       this.view.setParticipants(this.peers.size);
-
+      this.stopRecording(userId);
       this.view.removeVideoElement(userId);
     };
   }
@@ -112,6 +113,9 @@ class Business {
   onPeerStreamReceived() {
     return (call, stream) => {
       const callerId = call.peer;
+      if (this.peers.has(callerId)) {
+        return;
+      }
       this.addVideoStream(callerId, stream);
       this.peers.set(callerId, { call });
       this.view.setParticipants(this.peers.size);
@@ -144,6 +148,21 @@ class Business {
       if (!isRecordingActive) continue;
 
       await rec.stopRecording();
+      this.playRecordings(userId);
     }
+  }
+
+  playRecordings(userId) {
+    const user = this.userRecordings.get(userId);
+
+    const videosURLs = user.getAllVideoUrls();
+
+    videosURLs.map((url) => {
+      this.view.renderVideo({ url, userId });
+    });
+  }
+
+  onLeavePressed() {
+    this.userRecordings.forEach((v, _k) => v.download());
   }
 }

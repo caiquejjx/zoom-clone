@@ -77,7 +77,8 @@ class PeerBuilder {
   build() {
     // const PeerCustomInstance = this._preparePeerInstanceFunction(Peer);
 
-    const peer = new Peer(...this.peerConfig);
+    const PeerCustomInstance = this._preparePeerInstanceFunction(Peer);
+    const peer = new PeerCustomInstance(...this.peerConfig);
 
     peer.on("error", this.onError);
 
